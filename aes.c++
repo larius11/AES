@@ -1,5 +1,6 @@
 #include <getopt.h>
 #include <iostream>
+#include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -20,9 +21,8 @@ string inputfile;
 string outputfile;
 int mode;
 
-void parseCommandLine(int argc, char**argv){
+void parseCommandLine(int argc, char **argv) {
   int c;
-
   while (1) {
     c = getopt_long(argc, argv, "k:f:i:o:m:", long_options, NULL);
 
@@ -58,12 +58,38 @@ void parseCommandLine(int argc, char**argv){
     default:
       abort();
     }
-  }
-}
+  }}
 
 int main(int argc, char **argv) {
-  
+
   parseCommandLine(argc, argv);
 
-  return 0;
-}
+  /** 
+   * TODO:
+   * 
+   * Read input file
+   * Encrypt/Decrypt bytes
+   * Write to output file
+   */
+
+  streampos size;
+  char * memblock;
+
+  ifstream file (inputfile, ios::in|ios::binary|ios::ate);
+  if (file.is_open()){
+
+    size = file.tellg();
+    memblock = new char [size];
+    file.seekg (0, ios::beg);
+    file.read (memblock, size);
+    file.close();
+
+    for (int i = 0; i < size; ++i){
+      printf("%x\n", memblock[i]);
+    }
+
+    delete[] memblock;
+  }
+  else cout << "Unable to open file";
+
+  return 0;}
