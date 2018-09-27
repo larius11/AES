@@ -90,24 +90,26 @@ unsigned char getSBoxValue(unsigned char num) {
 }
 
 int subBytes(unsigned char b) {
-  //Simply index into the SBox array to find what the bits should be substituted for
+  // Simply index into the SBox array to find what the bits should be
+  // substituted for
   return getSBoxValue(b);
 }
 
-char* shiftRows(char *b) {
-  //Shift rows 2, 3, 4 are stored in new char*
-  char r[12] = {b[5],b[6],b[7],b[4],b[10],b[11],b[8],b[9],b[15],b[12],b[13],b[14]};
+char *shiftRows(char *b) {
+  // Shift rows 2, 3, 4 are stored in new char*
+  char r[12] = {b[5], b[6], b[7],  b[4],  b[10], b[11],
+                b[8], b[9], b[15], b[12], b[13], b[14]};
   for (int i = 0; i < 12; ++i)
     b[i + 4] = r[i];
   return b;
 }
 
-char* mixColumns(char *b) {
-  char c1[4] = {b[0],b[4],b[8],b[12]};
-  char c2[4] = {b[1],b[5],b[9],b[13]};
-  char c3[4] = {b[2],b[6],b[10],b[14]};
-  char c4[4] = {b[3],b[7],b[11],b[15]};
-  char mixArray[16] = {2,3,1,1,1,2,3,1,1,1,2,3,3,1,1,2};
+char *mixColumns(char *b) {
+  char c1[4] = {b[0], b[4], b[8], b[12]};
+  char c2[4] = {b[1], b[5], b[9], b[13]};
+  char c3[4] = {b[2], b[6], b[10], b[14]};
+  char c4[4] = {b[3], b[7], b[11], b[15]};
+  char mixArray[16] = {2, 3, 1, 1, 1, 2, 3, 1, 1, 1, 2, 3, 3, 1, 1, 2};
   /*       *\
     2 3 1 1
     1 2 3 1
@@ -115,22 +117,49 @@ char* mixColumns(char *b) {
     3 1 1 2
   \*       */
 
-  for (int i = 0; i < 4; ++i){
-    b[i*4] = (c1[0]*mixArray[i*4]) ^ (c1[1]*mixArray[(i*4)+1]) ^ (c1[2]*mixArray[(i*4)+2]) ^ (c1[3]*mixArray[(i*4)+3]);
-    b[(i*4)+1] = (c2[0]*mixArray[i*4]) ^ (c2[1]*mixArray[(i*4)+1]) ^ (c2[2]*mixArray[(i*4)+2]) ^ (c2[3]*mixArray[(i*4)+3]);
-    b[(i*4)+2] = (c3[0]*mixArray[i*4]) ^ (c3[1]*mixArray[(i*4)+1]) ^ (c3[2]*mixArray[(i*4)+2]) ^ (c3[3]*mixArray[(i*4)+3]);
-    b[(i*4)+3] = (c4[0]*mixArray[i*4]) ^ (c4[1]*mixArray[(i*4)+1]) ^ (c4[2]*mixArray[(i*4)+2]) ^ (c4[3]*mixArray[(i*4)+3]);
+  for (int i = 0; i < 4; ++i) {
+    b[i * 4] = (c1[0] * mixArray[i * 4]) ^ (c1[1] * mixArray[(i * 4) + 1]) ^
+               (c1[2] * mixArray[(i * 4) + 2]) ^
+               (c1[3] * mixArray[(i * 4) + 3]);
+    b[(i * 4) + 1] =
+        (c2[0] * mixArray[i * 4]) ^ (c2[1] * mixArray[(i * 4) + 1]) ^
+        (c2[2] * mixArray[(i * 4) + 2]) ^ (c2[3] * mixArray[(i * 4) + 3]);
+    b[(i * 4) + 2] =
+        (c3[0] * mixArray[i * 4]) ^ (c3[1] * mixArray[(i * 4) + 1]) ^
+        (c3[2] * mixArray[(i * 4) + 2]) ^ (c3[3] * mixArray[(i * 4) + 3]);
+    b[(i * 4) + 3] =
+        (c4[0] * mixArray[i * 4]) ^ (c4[1] * mixArray[(i * 4) + 1]) ^
+        (c4[2] * mixArray[(i * 4) + 2]) ^ (c4[3] * mixArray[(i * 4) + 3]);
   }
 
   return b;
-
 }
 
 int addRoundkey() {}
 
+char *subWord(char *b) {
+  for (int i = 0; i < 4; ++i)
+    b[i] = getSBoxValue(b[i]);
+  return b;
+}
+
+char *rotWord(char *b) {
+  char word[4] = {b[1],b[2],b[3],b[0]};
+  b = word;
+  return b;
+}
+
 int main(int argc, char **argv) {
 
   parseCommandLine(argc, argv);
+
+  int Nk = 16;
+  int Nb = 16;
+  int Nr = 10;
+
+  unsigned char expandedKey[Nb*(Nr+1)] = {0};
+  unsigned char inputKey[keysize/8] = {0};
+
 
   /**
    * TODO:
@@ -143,26 +172,62 @@ int main(int argc, char **argv) {
   streampos size;
   char *memblock;
 
+
+  // Read bytes from input file
+  ifstream kfile(keyfile, ios::in | ios::binary | ios::ate);
+  if (kfile.is_open()) {
+    memblock = new char[keysize/8];
+    kfile.seekg(0, ios::beg);
+    kfile.read(memblock, keysize/8);
+    
+    for (int l = 0; l < keysize/8; ++l){
+      inputKey[l] = memblock[l];
+      expandedKey[l] = memblock[l];
+    }
+
+    kfile.close();
+
+    delete[] memblock;
+  } else
+    cout << "Unable to open keyfile";
+
+  for (int l = 0; l < keysize/8; ++l)
+    printf("%x ", inputKey[l]);
+  cout << endl;
+  for (int l = 0; l < keysize/8; ++l)
+    printf("%x ", inputKey[l]);
+
   // Read bytes from input file
   ifstream file(inputfile, ios::in | ios::binary | ios::ate);
   if (file.is_open()) {
 
-    size = file.tellg();
+    size = file.tellg();                    //Equals the size of file
     memblock = new char[16];
     file.seekg(0, ios::beg);
     file.read(memblock, 16);
 
-    for (int i = 0; i < size; i+=16) {
-      if(file.gcount() < 16){
+    for (int i = 0; i < size; i += 16) {
+      if (file.gcount() < 16) {
         for (int x = file.gcount(); x < 16; ++x)
-          memblock[x] = 0;
+          if (x == 15)
+            memblock[x] = 16 - file.gcount(); // Set the last byte equal to the
+                                              // number of zeroes we used
+          else
+            memblock[x] = 0;
       }
-      cout << "Msg Before:\t" << memblock << endl;
-      for (int n = 0; n < 16; ++n)
-        memblock[n] = subBytes(memblock[n]);
-      memblock = shiftRows(memblock);
-      memblock = mixColumns(memblock);
-      cout << "Ecnrypted:\t" << memblock << endl;
+      // cout << "Msg Before:\t" << memblock << endl;
+
+      //Beginning Encryption
+
+      for (int cur_round = 0; cur_round < Nr; ++cur_round){
+        for (int n = 0; n < 16; ++n)
+          memblock[n] = subBytes(memblock[n]);
+        memblock = shiftRows(memblock);
+        memblock = mixColumns(memblock);
+      }
+      //End of Encryption
+
+      // cout << "Ecnrypted:\t" << memblock << endl;
       file.read(memblock, 16);
     }
 
