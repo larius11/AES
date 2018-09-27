@@ -107,7 +107,7 @@ char* mixColumns(char *b) {
   char c2[4] = {b[1],b[5],b[9],b[13]};
   char c3[4] = {b[2],b[6],b[10],b[14]};
   char c4[4] = {b[3],b[7],b[11],b[15]};
-  char mixArray[16] = {2,3,1,1,1,2,3,1,1,1,2,3,3,1,1,2}
+  char mixArray[16] = {2,3,1,1,1,2,3,1,1,1,2,3,3,1,1,2};
   /*       *\
     2 3 1 1
     1 2 3 1
@@ -116,10 +116,10 @@ char* mixColumns(char *b) {
   \*       */
 
   for (int i = 0; i < 4; ++i){
-    b[i*4] = (c1[0]*mixArray[i*4]) + (c1[1]*mixArray[(i*4)+1]) + (c1[2]*mixArray[(i*4)+2]) + (c1[3]*mixArray[(i*4)+3]);
-    b[(i*4)+1] = (c2[0]*mixArray[i*4]) + (c2[1]*mixArray[(i*4)+1]) + (c2[2]*mixArray[(i*4)+2]) + (c2[3]*mixArray[(i*4)+3]);
-    b[(i*4)+2] = (c3[0]*mixArray[i*4]) + (c3[1]*mixArray[(i*4)+1]) + (c3[2]*mixArray[(i*4)+2]) + (c3[3]*mixArray[(i*4)+3]);
-    b[(i*4)+3] = (c4[0]*mixArray[i*4]) + (c4[1]*mixArray[(i*4)+1]) + (c4[2]*mixArray[(i*4)+2]) + (c4[3]*mixArray[(i*4)+3]);
+    b[i*4] = (c1[0]*mixArray[i*4]) ^ (c1[1]*mixArray[(i*4)+1]) ^ (c1[2]*mixArray[(i*4)+2]) ^ (c1[3]*mixArray[(i*4)+3]);
+    b[(i*4)+1] = (c2[0]*mixArray[i*4]) ^ (c2[1]*mixArray[(i*4)+1]) ^ (c2[2]*mixArray[(i*4)+2]) ^ (c2[3]*mixArray[(i*4)+3]);
+    b[(i*4)+2] = (c3[0]*mixArray[i*4]) ^ (c3[1]*mixArray[(i*4)+1]) ^ (c3[2]*mixArray[(i*4)+2]) ^ (c3[3]*mixArray[(i*4)+3]);
+    b[(i*4)+3] = (c4[0]*mixArray[i*4]) ^ (c4[1]*mixArray[(i*4)+1]) ^ (c4[2]*mixArray[(i*4)+2]) ^ (c4[3]*mixArray[(i*4)+3]);
   }
 
   return b;
@@ -153,10 +153,16 @@ int main(int argc, char **argv) {
     file.read(memblock, 16);
 
     for (int i = 0; i < size; i+=16) {
+      if(file.gcount() < 16){
+        for (int x = file.gcount(); x < 16; ++x)
+          memblock[x] = 0;
+      }
+      cout << "Msg Before:\t" << memblock << endl;
       for (int n = 0; n < 16; ++n)
         memblock[n] = subBytes(memblock[n]);
       memblock = shiftRows(memblock);
-      cout << memblock << endl;
+      memblock = mixColumns(memblock);
+      cout << "Ecnrypted:\t" << memblock << endl;
       file.read(memblock, 16);
     }
 
