@@ -95,21 +95,21 @@ int subBytes(unsigned char b) {
   return getSBoxValue(b);
 }
 
-char *shiftRows(char *b) {
+unsigned char *shiftRows(unsigned char *b) {
   // Shift rows 2, 3, 4 are stored in new char*
-  char r[12] = {b[5], b[6], b[7],  b[4],  b[10], b[11],
+  unsigned char r[12] = {b[5], b[6], b[7],  b[4],  b[10], b[11],
                 b[8], b[9], b[15], b[12], b[13], b[14]};
   for (int i = 0; i < 12; ++i)
     b[i + 4] = r[i];
   return b;
 }
 
-char *mixColumns(char *b) {
-  char c1[4] = {b[0], b[4], b[8], b[12]};
-  char c2[4] = {b[1], b[5], b[9], b[13]};
-  char c3[4] = {b[2], b[6], b[10], b[14]};
-  char c4[4] = {b[3], b[7], b[11], b[15]};
-  char mixArray[16] = {2, 3, 1, 1, 1, 2, 3, 1, 1, 1, 2, 3, 3, 1, 1, 2};
+unsigned char *mixColumns(unsigned char *b) {
+  unsigned char c1[4] = {b[0], b[4], b[8], b[12]};
+  unsigned char c2[4] = {b[1], b[5], b[9], b[13]};
+  unsigned char c3[4] = {b[2], b[6], b[10], b[14]};
+  unsigned char c4[4] = {b[3], b[7], b[11], b[15]};
+  unsigned char mixArray[16] = {2, 3, 1, 1, 1, 2, 3, 1, 1, 1, 2, 3, 3, 1, 1, 2};
   /*       *\
     2 3 1 1
     1 2 3 1
@@ -135,78 +135,126 @@ char *mixColumns(char *b) {
   return b;
 }
 
-int addRoundkey() {}
+void addRoundkey(unsigned char *state, unsigned char *expandedkey, int offset) {
+  for (int i = 0; i < 16; ++i)
+    state[i] ^= expandedkey[offset+i]; 
+}
 
-char *subWord(char *b) {
+unsigned char *subWord(unsigned char *b) {
   for (int i = 0; i < 4; ++i)
-    b[i] = getSBoxValue(b[i]);
+    b[i] = subBytes(b[i]);
   return b;
 }
 
-char *rotWord(char *b) {
-  char word[4] = {b[1],b[2],b[3],b[0]};
-  b = word;
+unsigned char *rotWord(unsigned char *b) {
+  unsigned char c = b[0];
+  b[0] = b[1];
+  b[1] = b[2];
+  b[2] = b[3];
+  b[3] = c;
   return b;
+}
+
+unsigned char *getRconValue(unsigned char *Rcon, int round) {
+  unsigned char word[4] = {0};
+  round = (round / (keysize / 32)) - 1;
+  word[0] = (1 << round);
+  Rcon = word;
+  return Rcon;
+}
+
+unsigned char *getXOR(unsigned char *a, unsigned char *b){
+  a[0] = a[0]^b[0];
+  a[1] = a[1]^b[1];
+  a[2] = a[2]^b[2];
+  a[3] = a[3]^b[3];
+  return a;
+}
+
+unsigned char *keyExpansion(unsigned char *inputkey, unsigned char *expandedkey) {
+
+  int rounds, cur_round;
+
+  if (keysize == 256) {
+    rounds = 52;
+  } else {
+    unsigned char *_expandedKey = expandedkey;
+
+    rounds = 44;
+    cur_round = 0;
+
+    while(cur_round < 4){
+      _expandedKey[cur_round*4] = inputkey[cur_round*4];
+      _expandedKey[cur_round*4+1] = inputkey[cur_round*4+1];
+      _expandedKey[cur_round*4+2] = inputkey[cur_round*4+2];
+      _expandedKey[cur_round*4+3] = inputkey[cur_round*4+3];
+      ++cur_round;
+    }
+    while(cur_round < rounds){
+      unsigned char *Rcon;
+      unsigned char *word;
+
+      //Sub Word(Rot Word(EK((cur_round-4)*4))) XOR Rcon((cur_round/4)-1) XOR EK((cur_round-4)*4)
+      if(cur_round == 4)
+        word = &_expandedKey[12];
+      else
+        word = &_expandedKey[(cur_round-4)*4];
+      subWord(word);
+      Rcon = getRconValue(Rcon,(cur_round/4)-1);
+      getXOR(word, Rcon);
+      getXOR(word, &_expandedKey[(cur_round-4)*4]);
+      ++cur_round;
+      for(int subrounds = 0; subrounds < 3; ++subrounds){
+        //EK((cur_round-1)*4)XOR EK((cur_round-4)*4)
+        _expandedKey[cur_round*4] = _expandedKey[(cur_round-1)*4];
+        _expandedKey[(cur_round*4)+1] = _expandedKey[((cur_round-1)*4)+1];
+        _expandedKey[(cur_round*4)+2] = _expandedKey[((cur_round-1)*4)+2];
+        _expandedKey[(cur_round*4)+3] = _expandedKey[((cur_round-1)*4)+3];
+        getXOR(&_expandedKey[cur_round*4],&_expandedKey[(cur_round-4)*4]);
+        ++cur_round;
+      }
+    }
+    expandedkey = _expandedKey;
+  }
+
+  return expandedkey;
 }
 
 int main(int argc, char **argv) {
 
   parseCommandLine(argc, argv);
 
-  int Nk = 16;
-  int Nb = 16;
-  int Nr = 10;
+  unsigned char inputKey[keysize / 8] = {0};
+  unsigned char *expandedKey = new unsigned char[176];
 
-  unsigned char expandedKey[Nb*(Nr+1)] = {0};
-  unsigned char inputKey[keysize/8] = {0};
-
-
-  /**
-   * TODO:
-   *
-   * Read input file
-   * Encrypt/Decrypt bytes
-   * Write to output file
-   */
-
-  streampos size;
-  char *memblock;
-
-
-  // Read bytes from input file
+  // Read bytes from keyfile
   ifstream kfile(keyfile, ios::in | ios::binary | ios::ate);
   if (kfile.is_open()) {
-    memblock = new char[keysize/8];
+    unsigned char* memblock;
+    memblock = new unsigned char[keysize / 8];
     kfile.seekg(0, ios::beg);
-    kfile.read(memblock, keysize/8);
-    
-    for (int l = 0; l < keysize/8; ++l){
+    kfile.read((char*)(&memblock[0]), keysize / 8);
+    for (int l = 0; l < keysize / 8; ++l)
       inputKey[l] = memblock[l];
-      expandedKey[l] = memblock[l];
-    }
-
     kfile.close();
-
     delete[] memblock;
   } else
     cout << "Unable to open keyfile";
 
-  for (int l = 0; l < keysize/8; ++l)
-    printf("%x ", inputKey[l]);
-  cout << endl;
-  for (int l = 0; l < keysize/8; ++l)
-    printf("%x ", inputKey[l]);
+  expandedKey = keyExpansion(inputKey, expandedKey);
 
   // Read bytes from input file
   ifstream file(inputfile, ios::in | ios::binary | ios::ate);
   if (file.is_open()) {
-
-    size = file.tellg();                    //Equals the size of file
-    memblock = new char[16];
+    unsigned char* memblock;
+    streampos size;
+    size = file.tellg(); // Equals the size of file
+    memblock = new unsigned char[16];
     file.seekg(0, ios::beg);
-    file.read(memblock, 16);
+    file.read((char*)(&memblock[0]), 16);
 
     for (int i = 0; i < size; i += 16) {
+      // Pad with 0's
       if (file.gcount() < 16) {
         for (int x = file.gcount(); x < 16; ++x)
           if (x == 15)
@@ -215,20 +263,22 @@ int main(int argc, char **argv) {
           else
             memblock[x] = 0;
       }
-      // cout << "Msg Before:\t" << memblock << endl;
 
-      //Beginning Encryption
+      cout << "Msg Before:\t" << memblock << endl;
 
-      for (int cur_round = 0; cur_round < Nr; ++cur_round){
+      addRoundkey(memblock, expandedKey, 0);
+
+      // Beginning to encrypt 16 bytes
+      for (int cur_round = 0; cur_round < 10; ++cur_round) {
         for (int n = 0; n < 16; ++n)
           memblock[n] = subBytes(memblock[n]);
         memblock = shiftRows(memblock);
         memblock = mixColumns(memblock);
       }
-      //End of Encryption
+      // End of Encryption
 
-      // cout << "Ecnrypted:\t" << memblock << endl;
-      file.read(memblock, 16);
+      cout << "Ecnrypted:\t" << memblock << endl;
+      file.read((char*)(&memblock[0]), 16);
     }
 
     file.close();
