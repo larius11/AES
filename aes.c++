@@ -31,7 +31,31 @@ const unsigned char Sbox[256] = {
     0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f,
     0xb0, 0x54, 0xbb, 0x16};
 
-const unsigned char Ebox[256] = {
+const unsigned char ISbox[256] = {
+    0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e,
+    0x81, 0xf3, 0xd7, 0xfb, 0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87,
+    0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb, 0x54, 0x7b, 0x94, 0x32,
+    0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e,
+    0x08, 0x2e, 0xa1, 0x66, 0x28, 0xd9, 0x24, 0xb2, 0x76, 0x5b, 0xa2, 0x49,
+    0x6d, 0x8b, 0xd1, 0x25, 0x72, 0xf8, 0xf6, 0x64, 0x86, 0x68, 0x98, 0x16,
+    0xd4, 0xa4, 0x5c, 0xcc, 0x5d, 0x65, 0xb6, 0x92, 0x6c, 0x70, 0x48, 0x50,
+    0xfd, 0xed, 0xb9, 0xda, 0x5e, 0x15, 0x46, 0x57, 0xa7, 0x8d, 0x9d, 0x84,
+    0x90, 0xd8, 0xab, 0x00, 0x8c, 0xbc, 0xd3, 0x0a, 0xf7, 0xe4, 0x58, 0x05,
+    0xb8, 0xb3, 0x45, 0x06, 0xd0, 0x2c, 0x1e, 0x8f, 0xca, 0x3f, 0x0f, 0x02,
+    0xc1, 0xaf, 0xbd, 0x03, 0x01, 0x13, 0x8a, 0x6b, 0x3a, 0x91, 0x11, 0x41,
+    0x4f, 0x67, 0xdc, 0xea, 0x97, 0xf2, 0xcf, 0xce, 0xf0, 0xb4, 0xe6, 0x73,
+    0x96, 0xac, 0x74, 0x22, 0xe7, 0xad, 0x35, 0x85, 0xe2, 0xf9, 0x37, 0xe8,
+    0x1c, 0x75, 0xdf, 0x6e, 0x47, 0xf1, 0x1a, 0x71, 0x1d, 0x29, 0xc5, 0x89,
+    0x6f, 0xb7, 0x62, 0x0e, 0xaa, 0x18, 0xbe, 0x1b, 0xfc, 0x56, 0x3e, 0x4b,
+    0xc6, 0xd2, 0x79, 0x20, 0x9a, 0xdb, 0xc0, 0xfe, 0x78, 0xcd, 0x5a, 0xf4,
+    0x1f, 0xdd, 0xa8, 0x33, 0x88, 0x07, 0xc7, 0x31, 0xb1, 0x12, 0x10, 0x59,
+    0x27, 0x80, 0xec, 0x5f, 0x60, 0x51, 0x7f, 0xa9, 0x19, 0xb5, 0x4a, 0x0d,
+    0x2d, 0xe5, 0x7a, 0x9f, 0x93, 0xc9, 0x9c, 0xef, 0xa0, 0xe0, 0x3b, 0x4d,
+    0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61,
+    0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63,
+    0x55, 0x21, 0x0c, 0x7d};
+
+const unsigned char Ebox[257] = {
     0x01, 0x03, 0x05, 0x0F, 0x11, 0x33, 0x55, 0xFF, 0x1A, 0x2E, 0x72, 0x96,
     0xA1, 0xF8, 0x13, 0x35, 0x5F, 0xE1, 0x38, 0x48, 0xD8, 0x73, 0x95, 0xA4,
     0xF7, 0x02, 0x06, 0x0A, 0x1E, 0x22, 0x66, 0xAA, 0xE5, 0x34, 0x5C, 0xE4,
@@ -53,7 +77,7 @@ const unsigned char Ebox[256] = {
     0xA8, 0xE3, 0x3E, 0x42, 0xC6, 0x51, 0xF3, 0x0E, 0x12, 0x36, 0x5A, 0xEE,
     0x29, 0x7B, 0x8D, 0x8C, 0x8F, 0x8A, 0x85, 0x94, 0xA7, 0xF2, 0x0D, 0x17,
     0x39, 0x4B, 0xDD, 0x7C, 0x84, 0x97, 0xA2, 0xFD, 0x1C, 0x24, 0x6C, 0xB4,
-    0xC7, 0x52, 0xF6, 0x01};
+    0xC7, 0x52, 0xF6, 0x01, 0x00};
 
 const unsigned char Lbox[256] = {
     0x00, 0x00, 0x19, 0x01, 0x32, 0x02, 0x1A, 0xC6, 0x4B, 0xC7, 0x1B, 0x68,
@@ -146,11 +170,31 @@ int subBytes(unsigned char b) {
 }
 
 /**
+ * This function gets the corresponding ISBox byte to the given byte 'b'
+ **/
+int subBytesInv(unsigned char b) {
+  // Simply index into the SBox array to find what the bits should be
+  // substituted for
+  return ISbox[b];
+}
+
+/**
  * This function rearranges our state by using the matrix instantiated in r[]
  **/
 unsigned char *shiftRows(unsigned char *b) {
   unsigned char r[16] = {b[0], b[5],  b[10], b[15], b[4],  b[9], b[14], b[3],
                          b[8], b[13], b[2],  b[7],  b[12], b[1], b[6],  b[11]};
+  for (int i = 0; i < 16; ++i)
+    b[i] = r[i];
+  return b;
+}
+
+/**
+ * This function is the inverse of shiftRows
+ **/
+unsigned char *shiftRowsInv(unsigned char *b) {
+  unsigned char r[16] = {b[0], b[13], b[10], b[7],  b[4],  b[1], b[14], b[11],
+                         b[8], b[5],  b[2],  b[15], b[12], b[9], b[6],  b[3]};
   for (int i = 0; i < 16; ++i)
     b[i] = r[i];
   return b;
@@ -176,6 +220,10 @@ unsigned char *mixColumns(unsigned char *b) {
       l1 -= 0xff;
     if (l2 > 0xff)
       l2 -= 0xff;
+    if(x1 == 0)
+      l1 = 256;
+    if(x2 == 0)
+      l2 = 256;
     b[(i * 4)] = Ebox[l1] ^ Ebox[l2] ^ (x3) ^ (x4);
 
     l1 = Lbox[x2] + Lbox[2];
@@ -184,6 +232,10 @@ unsigned char *mixColumns(unsigned char *b) {
       l1 -= 0xff;
     if (l2 > 0xff)
       l2 -= 0xff;
+    if(x2 == 0)
+      l1 = 256;
+    if(x3 == 0)
+      l2 = 256;
     b[(i * 4) + 1] = (x1) ^ Ebox[l1] ^ Ebox[l2] ^ (x4);
 
     l1 = Lbox[x3] + Lbox[2];
@@ -192,6 +244,10 @@ unsigned char *mixColumns(unsigned char *b) {
       l1 -= 0xff;
     if (l2 > 0xff)
       l2 -= 0xff;
+    if(x3 == 0)
+      l1 = 256;
+    if(x4 == 0)
+      l2 = 256;
     b[(i * 4) + 2] = (x1) ^ (x2) ^ Ebox[l1] ^ Ebox[l2];
 
     l1 = Lbox[x4] + Lbox[2];
@@ -200,7 +256,113 @@ unsigned char *mixColumns(unsigned char *b) {
       l1 -= 0xff;
     if (l2 > 0xff)
       l2 -= 0xff;
+    if(x4 == 0)
+      l1 = 256;
+    if(x1 == 0)
+      l2 = 256;
     b[(i * 4) + 3] = Ebox[l2] ^ (x2) ^ (x3) ^ Ebox[l1];
+  }
+  return b;
+}
+
+/**
+ * This function is the inverse of mixColumns
+ **/
+unsigned char *mixColumnsInv(unsigned char *b) {
+  for (int i = 0; i < 4; ++i) {
+    int x1, x2, x3, x4, l1, l2, l3, l4;
+    x1 = b[(i * 4)];
+    x2 = b[(i * 4) + 1];
+    x3 = b[(i * 4) + 2];
+    x4 = b[(i * 4) + 3];
+
+    l1 = Lbox[x1] + Lbox[0x0e];
+    l2 = Lbox[x2] + Lbox[0x0b];
+    l3 = Lbox[x3] + Lbox[0x0d];
+    l4 = Lbox[x4] + Lbox[0x09];
+    if (l1 > 0xff)
+      l1 -= 0xff;
+    if (l2 > 0xff)
+      l2 -= 0xff;
+    if (l3 > 0xff)
+      l3 -= 0xff;
+    if (l4 > 0xff)
+      l4 -= 0xff;
+    if(x1 == 0)
+      l1 = 256;
+    if(x2 == 0)
+      l2 = 256;
+    if(x3 == 0)
+      l3 = 256;
+    if(x4 == 0)
+      l4 = 256;
+    b[(i * 4)] = Ebox[l1] ^ Ebox[l2] ^ Ebox[l3] ^ Ebox[l4];
+
+    l1 = Lbox[x1] + Lbox[0x09];
+    l2 = Lbox[x2] + Lbox[0x0e];
+    l3 = Lbox[x3] + Lbox[0x0b];
+    l4 = Lbox[x4] + Lbox[0x0d];
+    if (l1 > 0xff)
+      l1 -= 0xff;
+    if (l2 > 0xff)
+      l2 -= 0xff;
+    if (l3 > 0xff)
+      l3 -= 0xff;
+    if (l4 > 0xff)
+      l4 -= 0xff;
+    if(x1 == 0)
+      l1 = 256;
+    if(x2 == 0)
+      l2 = 256;
+    if(x3 == 0)
+      l3 = 256;
+    if(x4 == 0)
+      l4 = 256;
+    b[(i * 4) + 1] = Ebox[l1] ^ Ebox[l2] ^ Ebox[l3] ^ Ebox[l4];
+
+    l1 = Lbox[x1] + Lbox[0x0d];
+    l2 = Lbox[x2] + Lbox[0x09];
+    l3 = Lbox[x3] + Lbox[0x0e];
+    l4 = Lbox[x4] + Lbox[0x0b];
+    if (l1 > 0xff)
+      l1 -= 0xff;
+    if (l2 > 0xff)
+      l2 -= 0xff;
+    if (l3 > 0xff)
+      l3 -= 0xff;
+    if (l4 > 0xff)
+      l4 -= 0xff;
+    if(x1 == 0)
+      l1 = 256;
+    if(x2 == 0)
+      l2 = 256;
+    if(x3 == 0)
+      l3 = 256;
+    if(x4 == 0)
+      l4 = 256;
+    b[(i * 4) + 2] = Ebox[l1] ^ Ebox[l2] ^ Ebox[l3] ^ Ebox[l4];
+
+    l1 = Lbox[x1] + Lbox[0x0b];
+    l2 = Lbox[x2] + Lbox[0x0d];
+    l3 = Lbox[x3] + Lbox[0x09];
+    l4 = Lbox[x4] + Lbox[0x0e];
+    if (l1 > 0xff)
+      l1 -= 0xff;
+    if (l2 > 0xff)
+      l2 -= 0xff;
+    if (l3 > 0xff)
+      l3 -= 0xff;
+    if (l4 > 0xff)
+      l4 -= 0xff;
+    if(x1 == 0)
+      l1 = 256;
+    if(x2 == 0)
+      l2 = 256;
+    if(x3 == 0)
+      l3 = 256;
+    if(x4 == 0)
+      l4 = 256;
+    b[(i * 4) + 3] = Ebox[l1] ^ Ebox[l2] ^ Ebox[l3] ^ Ebox[l4];
   }
   return b;
 }
@@ -307,10 +469,7 @@ void copyWord(unsigned char *a, unsigned char *b) {
 unsigned char *keyExpansion(unsigned char *inputkey,
                             unsigned char *_expandedKey) {
 
-  if (keysize == 256) {
-    // rounds = 52;
-  } else {
-
+  if (keysize == 128) {
     int rounds = 44; // 44 rounds to expand a 128-bit key to 176 bytes
     int cur_round = 0;
 
@@ -340,6 +499,50 @@ unsigned char *keyExpansion(unsigned char *inputkey,
         copyWord(&_expandedKey[cur_round * 4], word);
         ++cur_round;
       }
+      delete[] Rcon;
+      delete[] word;
+    }
+  }else{
+    int rounds = 60;
+    int cur_round = 0;
+
+    while (cur_round < 8) {
+      _expandedKey[cur_round * 4] = inputkey[cur_round * 4];
+      _expandedKey[cur_round * 4 + 1] = inputkey[cur_round * 4 + 1];
+      _expandedKey[cur_round * 4 + 2] = inputkey[cur_round * 4 + 2];
+      _expandedKey[cur_round * 4 + 3] = inputkey[cur_round * 4 + 3];
+      ++cur_round;
+    }
+
+    while (cur_round < rounds) {
+      unsigned char *Rcon = new unsigned char[4];
+      unsigned char *word = new unsigned char[4];
+
+      copyWord(word, &_expandedKey[((cur_round - 1) * 4)]);
+
+      getXOR(subWord(rotWord(word)), getRconValue(Rcon, (cur_round / 8) - 1));
+      getXOR(word, &_expandedKey[((cur_round - 8) * 4)]);
+
+      copyWord(&_expandedKey[(cur_round * 4)], word);
+      ++cur_round;
+      for (int subrounds = 0; subrounds < 3; ++subrounds) {
+        copyWord(word, &_expandedKey[(cur_round - 1) * 4]);
+        getXOR(word, &_expandedKey[(cur_round - 8) * 4]);
+        copyWord(&_expandedKey[cur_round * 4], word);
+        ++cur_round;
+      }
+      if(cur_round > 59)
+        break;
+      copyWord(word, &_expandedKey[((cur_round - 1) * 4)]);
+      getXOR(subWord(word), &_expandedKey[((cur_round - 8) * 4)]);
+      copyWord(&_expandedKey[(cur_round * 4)], word);
+      ++cur_round;
+      for (int subrounds = 0; subrounds < 3; ++subrounds) {
+        copyWord(word, &_expandedKey[(cur_round - 1) * 4]);
+        getXOR(word, &_expandedKey[(cur_round - 8) * 4]);
+        copyWord(&_expandedKey[cur_round * 4], word);
+        ++cur_round;
+      }
 
       delete[] Rcon;
       delete[] word;
@@ -353,7 +556,9 @@ int main(int argc, char **argv) {
   parseCommandLine(argc, argv);
 
   unsigned char *inputKey = new unsigned char[keysize / 8];
-  unsigned char *expandedKey = new unsigned char[176];
+  unsigned char *expandedKey;
+  int cur_round = 0;
+  int total_rounds = 0;
 
   // Read bytes from keyfile
   ifstream kfile(keyfile, ios::in | ios::binary | ios::ate);
@@ -369,6 +574,13 @@ int main(int argc, char **argv) {
   } else
     cout << "Unable to open keyfile";
 
+  if (keysize == 128){
+    expandedKey = new unsigned char[176];
+    total_rounds = 10;
+  }else{
+    expandedKey = new unsigned char[240];
+    total_rounds = 14;
+  }
   expandedKey = keyExpansion(inputKey, expandedKey);
 
   // Read bytes from input file
@@ -383,41 +595,62 @@ int main(int argc, char **argv) {
     // Read only the first 16 bytes
     file.read((char *)(&memblock[0]), 16);
 
+    // Pad with 0's
+    if (file.gcount() < 16) {
+      for (int x = file.gcount(); x < 16; ++x)
+        if (x == 15)
+          memblock[x] = 16 - file.gcount(); // Set the last byte equal to the
+                                            // number of zeroes we used
+        else
+          memblock[x] = 0;
+    }
+
     for (int i = 0; i < size; i += 16) {
-      // Pad with 0's
-      if (file.gcount() < 16) {
-        for (int x = file.gcount(); x < 16; ++x)
-          if (x == 15)
-            memblock[x] = 16 - file.gcount(); // Set the last byte equal to the
-                                              // number of zeroes we used
-          else
-            memblock[x] = 0;
-      }
 
-      // Before we begin encrypting we do one addRoundkey
-      addRoundkey(memblock, expandedKey, 0);
+      // (mode == 1) is Encrypt
+      if (mode == 1) {
+        // Before we begin encrypting we do one addRoundkey
+        addRoundkey(memblock, expandedKey, 0);
 
-      int cur_round = 0;
-      int total_rounds = 14;
-      if (keysize == 128) {
-        total_rounds = 10;
-      }
-      // Beginning to encrypt 16 bytes
-      for (; cur_round < (total_rounds - 1); cur_round++) {
+        // Beginning to encrypt 16 bytes
+        for (; cur_round < (total_rounds - 1); cur_round++) {
+          for (int n = 0; n < 16; ++n)
+            memblock[n] = subBytes(memblock[n]);
+          memblock = shiftRows(memblock);
+          memblock = mixColumns(memblock);
+          memblock = addRoundkey(memblock, expandedKey, (cur_round + 1) * 16);
+        }
         for (int n = 0; n < 16; ++n)
           memblock[n] = subBytes(memblock[n]);
         memblock = shiftRows(memblock);
-        memblock = mixColumns(memblock);
-        memblock = addRoundkey(memblock, expandedKey, (cur_round + 1) * 16);
-      }
-      for (int n = 0; n < 16; ++n)
-        memblock[n] = subBytes(memblock[n]);
-      memblock = shiftRows(memblock);
-      addRoundkey(memblock, expandedKey, (cur_round + 1) * 16);
-      // End of Encryption
+        addRoundkey(memblock, expandedKey, (cur_round + 1) * 16);
+        // End of Encryption
 
-      for (int n = 0; n < 16; ++n)
-        cout << memblock[n];
+        for (int n = 0; n < 16; ++n)
+          cout << memblock[n];
+      } else {
+        cur_round = total_rounds;
+
+        addRoundkey(memblock, expandedKey, cur_round * 16);
+        --cur_round;
+
+        // Beginning to decrypt 16 bytes
+        for (; cur_round > 0; cur_round--) {
+          memblock = shiftRowsInv(memblock);
+          for (int n = 0; n < 16; ++n)
+            memblock[n] = subBytesInv(memblock[n]);
+          memblock = addRoundkey(memblock, expandedKey, cur_round * 16);
+          memblock = mixColumnsInv(memblock);
+        }
+        memblock = shiftRowsInv(memblock);
+        for (int n = 0; n < 16; ++n)
+          memblock[n] = subBytesInv(memblock[n]);
+        addRoundkey(memblock, expandedKey, 0);
+        // End of Decryption
+
+        for (int n = 0; n < 16; ++n)
+          cout << memblock[n];
+      }
 
       file.read((char *)(&memblock[0]), 16);
     }
