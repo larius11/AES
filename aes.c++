@@ -604,9 +604,9 @@ int main(int argc, char **argv) {
         else
           memblock[x] = 0;
     }
-
+    ofstream outputstrm;
+    outputstrm.open(outputfile);
     for (int i = 0; i < size; i += 16) {
-
       // (mode == 1) is Encrypt
       if (mode == 1) {
         // Before we begin encrypting we do one addRoundkey
@@ -625,9 +625,6 @@ int main(int argc, char **argv) {
         memblock = shiftRows(memblock);
         addRoundkey(memblock, expandedKey, (cur_round + 1) * 16);
         // End of Encryption
-
-        for (int n = 0; n < 16; ++n)
-          cout << memblock[n];
       } else {
         cur_round = total_rounds;
 
@@ -647,10 +644,11 @@ int main(int argc, char **argv) {
           memblock[n] = subBytesInv(memblock[n]);
         addRoundkey(memblock, expandedKey, 0);
         // End of Decryption
-
-        for (int n = 0; n < 16; ++n)
-          cout << memblock[n];
       }
+
+
+      for (int n = 0; n < 16; ++n)
+        outputstrm << memblock[n];
 
       file.read((char *)(&memblock[0]), 16);
     }
